@@ -3,11 +3,6 @@ name: Create Release
 on:
   workflow_dispatch:  # This triggers the workflow manually
 
-jobs:
-  create_release:
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-
     inputs:
       tag_name:
         description: 'Tag name for the release'
@@ -19,6 +14,11 @@ jobs:
         description: 'Release notes'
         required: true
 
+jobs:
+  create_release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
