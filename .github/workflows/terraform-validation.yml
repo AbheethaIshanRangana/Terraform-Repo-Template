@@ -1,4 +1,4 @@
-name: Terraform Validation
+name: Validate Terraform with tfsec
 
 on: 
   push:
@@ -9,18 +9,21 @@ on:
       - main
 
 jobs:
-  terraform_validation:
-    name: Validate Terraform
+  validate:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup Terraform
+      - name: Install Terraform and TFSec
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.0.0 # Terraform version
+          terraform_version: 1.4.0
+          install_terraform_tools: true
 
-      - name: Validate Terraform Configuration
+      - name: Validate Terraform Code
         run: terraform validate
+
+      - name: Run TFSec security scan
+        run: tfsec .
