@@ -3,6 +3,8 @@ name: Validate Terraform with tfsec
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
 jobs:
   validate:
