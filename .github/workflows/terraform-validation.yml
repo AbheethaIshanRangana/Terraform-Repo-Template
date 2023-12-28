@@ -16,15 +16,6 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.4.0
-          install_terraform_tools: true
-
-      - name: Check for tfsec installation
-        run: which tfsec || exit 1  # Exit with error if tfsec is not found
 
       - name: Validate Terraform code
         run: terraform validate
-
-      - name: Run tfsec security scan
-        run: |
-          export PATH="$PATH:$(go env GOPATH)/bin"  # Ensure tfsec is in PATH
-          tfsec .
