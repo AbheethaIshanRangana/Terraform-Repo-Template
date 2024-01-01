@@ -2,12 +2,13 @@ name: Validate Terraform
 
 on:
   pull_request:
+    #branches: [release,development]
+  push:
     branches: [release,development]
-  #push:
-  #  branches: [release,development]
 
 jobs:
   TF-Validate:
+    name: TF Validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,30 +25,73 @@ jobs:
       - name: Validate Terraform code
         run: terraform validate
   TF-Sec:
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: TFSec
-        uses: aquasecurity/tfsec-sarif-action@v0.1.0
-        with:
-          sarif_file: tfsec.sarif
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          # Path to SARIF file relative to the root of the repository
-          sarif_file: tfsec.sarif
-  TF-Sec-PR-Commenter:
-    name: tfsec PR commenter
+    name: TFSec #sarif report
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
         uses: actions/checkout@master
-      - name: tfsec
-        uses: tfsec/tfsec-pr-commenter-action@main
+      - name: Run report
+        uses: aquasecurity/tfsec-sarif-action@v0.1.0
         with:
-          github_token: ${{ secrets.TOKEN }}
+          sarif_file: tfsec.sarif
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: tfsec.sarif
+  TF-Checkov:
+    name: Checkov
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Test with Checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: terraform
+          # This will add both a CLI output to the console and create a results.sarif file
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        
+        # Results are generated only on a success or failure
+        # this is required since GitHub by default won't run the next step
+        # when the previous one has failed. Security checks that do not pass will 'fail'.
+        # An alternative is to add `continue-on-error: true` to the previous step
+        # Or 'soft_fail: true' to checkov.
+        if: success() || failure()
+        with:
+          sarif_file: results.sarif
+  #TF-Sec:
+  #  runs-on: ubuntu-latest
+  #  permissions:
+  #    actions: read
+  #    contents: read
+  #    security-events: write
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v3
+  #    - name: TFSec
+  #      uses: aquasecurity/tfsec-sarif-action@v0.1.0
+  #      with:
+  #        sarif_file: tfsec.sarif
+  #    - name: Upload SARIF file
+  #      uses: github/codeql-action/upload-sarif@v1
+  #      with:
+  #        # Path to SARIF file relative to the root of the repository
+  #        sarif_file: tfsec.sarif
+  #TF-Sec-PR-Commenter:
+  #  name: tfsec PR commenter
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Clone repo
+  #      uses: actions/checkout@master
+  #    - name: tfsec
+  #      uses: tfsec/tfsec-pr-commenter-action@main
+  #      with:
+  #        github_token: ${{ secrets.TOKEN }}
