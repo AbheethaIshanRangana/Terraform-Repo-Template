@@ -2,9 +2,9 @@ name: Validate Terraform
 
 on:
   pull_request:
+    #branches: [release,development]
+  push:
     branches: [release,development]
-  #push:
-  #  branches: [release,development]
 
 jobs:
   TF-Validate:
