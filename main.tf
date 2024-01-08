@@ -23,9 +23,9 @@
 #      values        = ["100.0"]
 #      match_options = ["GREATER_THAN_OR_EQUAL"]
 #    }
-  }
+#  }
 
-}
+#}
 
 resource "aws_s3_bucket" "bad_backet" {
   bucket = "bad-bucket"
