@@ -26,7 +26,7 @@
 #    condition: "not all(tag in config('required_tags') for tag in getattr(entity, 'tags', []))"
 
 metadata:
-  name: "Ensure EC2 instances have the required tag"
+  name: "Ensure all AWS resources have the required tag"
   id: "CKV_CUSTOM_1"
   category: "GENERAL_SECURITY"
   guideline: "https://example.com/tag-guidelines"  # Optional
@@ -43,11 +43,11 @@ definition:
       value: Owner
     - connection:
         from:
-          resource: aws_instance
+          resource:
         to:
           resource: aws_tag
         connection_type: tag
-        resource_types:
-          - aws_instance
-          - aws_s3_bucket
+        #resource_types:
+        #  - aws_instance
+        #  - aws_s3_bucket
 
