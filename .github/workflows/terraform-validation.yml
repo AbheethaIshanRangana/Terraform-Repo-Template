@@ -7,6 +7,33 @@ on:
   #  branches: [release,development]
 
 jobs:
+  TF-Lint:
+    name: TF Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download TF Lint
+        run: |
+          wget https://github.com/terraform-linters/tflint/releases/latest/download/tflint_linux_amd64.zip
+          unzip tflint_linux_amd64.zip
+          chmod +x tflint
+          sudo mv tflint /usr/local/bin/
+          tflint --version
+        shell: bash
+      - name: Lint changed files in module folder
+        id: changed-files
+        run: |
+          changed_files=$(git diff --name-only HEAD^ HEAD)
+          dirs=()
+          for file in $changed_files;
+          do
+            dir=$(dirname $file)
+            dirs+=("$dir")
+          done
+          
   TF-Validate:
     name: TF Validate
     runs-on: ubuntu-latest
