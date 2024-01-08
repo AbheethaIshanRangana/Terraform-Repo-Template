@@ -1,0 +1,25 @@
+metadata:
+  name: EnsureRequiredTags
+  category: "Tags"
+  description: "Ensure specific tags are applied to resources"
+  supported_resources:
+    - aws_ec2_instance
+    - aws_s3_bucket
+    # Add more supported resources as needed
+
+config:
+  required_tags:
+    description: "Tags that must be present on the resources"
+    type: "list"
+    default: []
+    examples: ["Environment", "Owner"]
+    elements: 
+      - type: "string"
+
+checks:
+  ensure_required_tags:
+    description: "Ensure required tags are present on resources"
+    severity: "HIGH"
+    remediation: "Add the required tags to the resource."
+    background: true
+    condition: "not all(tag in config('required_tags') for tag in getattr(entity, 'tags', []))"
