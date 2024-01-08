@@ -1,6 +1,7 @@
 metadata:
   name: EnsureRequiredTags
   category: "Tags"
+  id: "CKV_CUSTOM_1"
   description: "Ensure specific tags are applied to resources"
   supported_resources:
     - aws_ec2_instance
