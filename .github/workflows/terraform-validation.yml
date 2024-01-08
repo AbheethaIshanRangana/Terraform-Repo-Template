@@ -67,6 +67,17 @@ jobs:
         if: success() || failure()
         with:
           sarif_file: results.sarif
+  Checkov-Custom:
+    name: Custom Checkov validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run Checkov
+        uses: docker://bridgecrew/checkov:latest
+        with:
+          entrypoint: checkov
+          args: -d . --external-checks-dir ./checkov_custom_policies/  
   #TF-Sec:
   #  runs-on: ubuntu-latest
   #  permissions:
