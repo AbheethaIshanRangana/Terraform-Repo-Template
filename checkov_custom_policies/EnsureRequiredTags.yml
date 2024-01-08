@@ -1,26 +1,53 @@
-metadata:
-  name: EnsureRequiredTags
-  category: "Tags"
-  id: "CKV_CUSTOM_1"
-  description: "Ensure specific tags are applied to resources"
-  supported_resources:
-    - aws_ec2_instance
-    - aws_s3_bucket
+#metadata:
+#  name: EnsureRequiredTags
+#  category: "Tags"
+#  id: "CKV_CUSTOM_1"
+#  description: "Ensure specific tags are applied to resources"
+#  supported_resources:
+#    - aws_ec2_instance
+#    - aws_s3_bucket
     # Add more supported resources as needed
 
-config:
-  required_tags:
-    description: "Tags that must be present on the resources"
-    type: "list"
-    default: []
-    examples: ["Environment", "Owner"]
-    elements: 
-      - type: "string"
+#config:
+#  required_tags:
+#    description: "Tags that must be present on the resources"
+#    type: "list"
+#    default: []
+#    examples: ["Environment", "Owner"]
+#    elements: 
+#      - type: "string"
 
-checks:
-  ensure_required_tags:
-    description: "Ensure required tags are present on resources"
-    severity: "HIGH"
-    remediation: "Add the required tags to the resource."
-    background: true
-    condition: "not all(tag in config('required_tags') for tag in getattr(entity, 'tags', []))"
+#checks:
+#  ensure_required_tags:
+#    description: "Ensure required tags are present on resources"
+#    severity: "HIGH"
+#    remediation: "Add the required tags to the resource."
+#    background: true
+#    condition: "not all(tag in config('required_tags') for tag in getattr(entity, 'tags', []))"
+
+metadata:
+  name: "Ensure all AWS resources have the required tag"
+  id: "CKV_CUSTOM_1"
+  category: "GENERAL_SECURITY"
+  guideline: "https://example.com/tag-guidelines"  # Optional
+
+definition:
+  or:
+    - attribute: tags
+      operator: exists
+      attribute: Key
+      value: Environment
+    - attribute: tags
+      operator: exists
+      attribute: Key
+      value: Owner
+    - connection:
+        from:
+          resource:
+        to:
+          resource: aws_tag
+        connection_type: tag
+        #resource_types:
+        #  - aws_instance
+        #  - aws_s3_bucket
+

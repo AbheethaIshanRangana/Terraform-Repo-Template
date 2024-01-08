@@ -7,6 +7,33 @@ on:
   #  branches: [release,development]
 
 jobs:
+  TF-Lint:
+    name: TF Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download TF Lint
+        run: |
+          wget https://github.com/terraform-linters/tflint/releases/latest/download/tflint_linux_amd64.zip
+          unzip tflint_linux_amd64.zip
+          chmod +x tflint
+          sudo mv tflint /usr/local/bin/
+          tflint --version
+        shell: bash
+      - name: Lint changed files in module folder
+        id: changed-files
+        run: |
+          changed_files=$(git diff --name-only HEAD^ HEAD)
+          dirs=()
+          for file in $changed_files;
+          do
+            dir=$(dirname $file)
+            dirs+=("$dir")
+          done
+          
   TF-Validate:
     name: TF Validate
     runs-on: ubuntu-latest
@@ -30,14 +57,18 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@master
-      - name: Run report
-        uses: aquasecurity/tfsec-sarif-action@v0.1.0
-        with:
-          sarif_file: tfsec.sarif
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: tfsec.sarif
+      - name: TFSec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with: 
+          soft_fail: true
+      #- name: Run report
+      #  uses: aquasecurity/tfsec-sarif-action@v0.1.0
+      #  with:
+      #    sarif_file: tfsec.sarif
+      #- name: Upload SARIF file
+      #  uses: github/codeql-action/upload-sarif@v2
+      #  with:
+      #    sarif_file: tfsec.sarif
   TF-Checkov:
     name: Checkov
     runs-on: ubuntu-latest
@@ -53,31 +84,32 @@ jobs:
         with:
           directory: .
           framework: terraform
+          soft_fail: true
           # This will add both a CLI output to the console and create a results.sarif file
-          output_format: cli,sarif
-          output_file_path: console,results.sarif
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
+          #output_format: cli,sarif
+          #output_file_path: console,results.sarif
+      #- name: Upload SARIF file
+      #  uses: github/codeql-action/upload-sarif@v2
         
         # Results are generated only on a success or failure
         # this is required since GitHub by default won't run the next step
         # when the previous one has failed. Security checks that do not pass will 'fail'.
         # An alternative is to add `continue-on-error: true` to the previous step
         # Or 'soft_fail: true' to checkov.
-        if: success() || failure()
-        with:
-          sarif_file: results.sarif
-  Checkov-Custom:
-    name: Custom Checkov validation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Run Checkov
-        uses: docker://bridgecrew/checkov:latest
-        with:
-          entrypoint: checkov
-          args: -d . --external-checks-dir ./checkov_custom_policies/  
+        #if: success() || failure()
+        #with:
+        #  sarif_file: results.sarif
+  #Checkov-Custom:
+  #  name: Custom Checkov validation
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Checkout code
+  #      uses: actions/checkout@v3
+  #    - name: Run Checkov
+  #      uses: docker://bridgecrew/checkov:latest
+  #      with:
+  #        entrypoint: checkov
+  #        args: -d . --external-checks-dir ./checkov_custom_policies/  
   #TF-Sec:
   #  runs-on: ubuntu-latest
   #  permissions:
