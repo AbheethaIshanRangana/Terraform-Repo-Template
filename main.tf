@@ -1,8 +1,8 @@
-resource "aws_ce_anomaly_monitor" "anomaly_monitor" {
-  name              = "AWSServiceMonitor"
-  monitor_type      = "DIMENSIONAL"
-  monitor_dimension = "SERVICE"
-}
+#resource "aws_ce_anomaly_monitor" "anomaly_monitor" {
+#  name              = "AWSServiceMonitor"
+#  monitor_type      = "DIMENSIONAL"
+#  monitor_dimension = "SERVICE"
+#}
 
 resource "aws_ce_anomaly_subscription" "realtime_subscription" {
   name      = "RealtimeAnomalySubscription"
