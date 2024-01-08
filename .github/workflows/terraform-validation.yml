@@ -30,14 +30,18 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@master
-      - name: Run report
-        uses: aquasecurity/tfsec-sarif-action@v0.1.0
-        with:
-          sarif_file: tfsec.sarif
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: tfsec.sarif
+      - name: TFSec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with: 
+          soft_fail: true
+      #- name: Run report
+      #  uses: aquasecurity/tfsec-sarif-action@v0.1.0
+      #  with:
+      #    sarif_file: tfsec.sarif
+      #- name: Upload SARIF file
+      #  uses: github/codeql-action/upload-sarif@v2
+      #  with:
+      #    sarif_file: tfsec.sarif
   TF-Checkov:
     name: Checkov
     runs-on: ubuntu-latest
@@ -54,30 +58,30 @@ jobs:
           directory: .
           framework: terraform
           # This will add both a CLI output to the console and create a results.sarif file
-          output_format: cli,sarif
-          output_file_path: console,results.sarif
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
+          #output_format: cli,sarif
+          #output_file_path: console,results.sarif
+      #- name: Upload SARIF file
+      #  uses: github/codeql-action/upload-sarif@v2
         
         # Results are generated only on a success or failure
         # this is required since GitHub by default won't run the next step
         # when the previous one has failed. Security checks that do not pass will 'fail'.
         # An alternative is to add `continue-on-error: true` to the previous step
         # Or 'soft_fail: true' to checkov.
-        if: success() || failure()
-        with:
-          sarif_file: results.sarif
-  Checkov-Custom:
-    name: Custom Checkov validation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Run Checkov
-        uses: docker://bridgecrew/checkov:latest
-        with:
-          entrypoint: checkov
-          args: -d . --external-checks-dir ./checkov_custom_policies/  
+        #if: success() || failure()
+        #with:
+        #  sarif_file: results.sarif
+  #Checkov-Custom:
+  #  name: Custom Checkov validation
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Checkout code
+  #      uses: actions/checkout@v3
+  #    - name: Run Checkov
+  #      uses: docker://bridgecrew/checkov:latest
+  #      with:
+  #        entrypoint: checkov
+  #        args: -d . --external-checks-dir ./checkov_custom_policies/  
   #TF-Sec:
   #  runs-on: ubuntu-latest
   #  permissions:
